@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sisinti 💛💗</title>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f5bfa0;
+        overflow: hidden;
+        font-family: "Georgia", serif;
+      }
+
+      canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      /* BOTÓN */
+      .open-btn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 14px 32px;
+        background: #f47983; /* Melón suave */
+        color: #5c3d3d;
+        border: none;
+        border-radius: 40px;
+        font-size: 18px;
+        cursor: pointer;
+        opacity: 0;
+        transition:
+          opacity 1.5s ease,
+          transform 0.3s;
+        z-index: 10;
+        box-shadow: 0 0 25px rgba(232, 160, 191, 0.4);
+      }
+
+      .open-btn.visible {
+        opacity: 1;
+      }
+
+      .open-btn:hover {
+        transform: translate(-50%, -50%) scale(1.1);
+      }
+
+      /* CARTA */
+      .letter {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 90%;
+        max-width: 700px;
+        padding: 40px;
+        background: linear-gradient(145deg, #fff1eb, #ffe8e1);
+        border-radius: 25px;
+        box-shadow: 0 0 60px rgba(232, 160, 191, 0.4);
+        transform: translate(-50%, -50%) scale(0);
+        transition: transform 0.8s ease;
+        z-index: 20;
+        text-align: center;
+        box-sizing: border-box;
+      }
+
+      .letter.show {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      .letter h2 {
+        font-size: clamp(22px, 3vw, 34px);
+        color: #5c3d3d;
+      }
+
+      .letter p {
+        font-size: clamp(16px, 2vw, 22px);
+        line-height: 1.8;
+        color: #5c3d3d;
+      }
+
+      .close {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        cursor: pointer;
+        font-size: 20px;
+        color: #5c3d3d;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 600px) {
+        .letter {
+          width: 95%;
+          padding: 25px;
+          border-radius: 20px;
+        }
+
+        .letter h2 {
+          font-size: 22px;
+        }
+
+        .letter p {
+          font-size: 16px;
+          line-height: 1.6;
+        }
+
+        .open-btn {
+          font-size: 16px;
+          padding: 10px 22px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <canvas id="canvas"></canvas>
+    <button class="open-btn" id="openBtn">
+      PARA SINTIA <br />
+      💌 Abrir
+    </button>
+
+    <div class="letter" id="letter">
+      <div class="close" id="closeBtn">✖</div>
+      <h2>"PARA SISINTI 💛🌸"</h2>
+      <p>
+        Sisinti,<br />
+        Quería tomar un momento para decirte lo mucho que he valorado trabajar
+        contigo todos estos años. Tu dedicación, tu esfuerzo y tu forma de ser
+        hacen que quienes te rodeamos aprendamos y disfrutemos cada día a tu
+        lado 💛 💗<br />
+        Sé que estás pasando momentos difíciles, y deseo de corazón que
+        encuentres fuerza y tranquilidad junto a tus hijos. Ojalá que cada día
+        te traiga un poco más de paz y alegría, y que todo lo bueno que das
+        vuelva a ti multiplicado 🌼 <br />
+        Aunque ahora tomé otro camino, siempre recordaré tu apoyo y los momentos
+        compartidos. Te deseo lo mejor, hoy y siempre 🌷<br />
+      </p>
+      <p>
+        Con todo mi cariño,<br /><br />
+        ------EMC------
+      </p>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+
+      let state = "rain";
+      let heartPoints = [];
+      let particles = [];
+      let rainItems = [];
+      let frameCount = 0;
+
+      /* Generar corazón */
+      function generateHeartPoints() {
+        heartPoints = [];
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const scale = Math.min(canvas.width, canvas.height) / 60;
+
+        for (let t = 0; t < Math.PI * 2; t += 0.1) {
+          const x = 16 * Math.pow(Math.sin(t), 3);
+          const y = -(
+            13 * Math.cos(t) -
+            5 * Math.cos(2 * t) -
+            2 * Math.cos(3 * t) -
+            Math.cos(4 * t)
+          );
+          heartPoints.push({
+            x: centerX + x * scale,
+            y: centerY + y * scale,
+          });
+        }
+      }
+
+      class HeartParticle {
+        constructor(tx, ty) {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.tx = tx;
+          this.ty = ty;
+          this.size = Math.random() * 3 + 3; // tamaño entre 3 y 6
+        }
+
+        update() {
+          this.x += (this.tx - this.x) * 0.02;
+          this.y += (this.ty - this.y) * 0.02;
+        }
+        draw() {
+          ctx.fillStyle = "#f47983";
+
+          ctx.shadowColor = "#f39998";
+          ctx.shadowBlur = 15;
+
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.shadowBlur = 0;
+        }
+      }
+
+      class RainItem {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = -20;
+          this.speed = Math.random() * 3 + 2;
+          this.type = Math.random() > 0.5 ? "🌸" : "💌";
+          this.size = Math.random() * 20 + 15;
+        }
+        update() {
+          this.y += this.speed;
+        }
+        draw() {
+          ctx.font = this.size + "px Arial";
+          ctx.fillStyle = this.type === "🌸" ? "#F7C8D9" : "#FFD5C2";
+          ctx.fillText(this.type, this.x, this.y);
+        }
+      }
+
+      generateHeartPoints();
+      heartPoints.forEach((p) => {
+        particles.push(new HeartParticle(p.x, p.y));
+      });
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        frameCount++;
+
+        if (state === "rain") {
+          rainItems.push(new RainItem());
+          rainItems.forEach((r) => {
+            r.update();
+            r.draw();
+          });
+
+          if (frameCount > 180) {
+            state = "forming";
+            rainItems = [];
+          }
+        }
+
+        if (state === "forming") {
+          particles.forEach((p) => {
+            p.update();
+            p.draw();
+          });
+
+          if (frameCount > 420) {
+            state = "formed";
+            document.getElementById("openBtn").classList.add("visible");
+          }
+        }
+
+        if (state === "letter") {
+          rainItems.push(new RainItem());
+          rainItems.forEach((r) => {
+            r.update();
+            r.draw();
+          });
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      animate();
+
+      const openBtn = document.getElementById("openBtn");
+      const letter = document.getElementById("letter");
+      const closeBtn = document.getElementById("closeBtn");
+
+      openBtn.addEventListener("click", () => {
+        letter.classList.add("show");
+        state = "letter";
+      });
+
+      closeBtn.addEventListener("click", () => {
+        letter.classList.remove("show");
+      });
+    </script>
+  </body>
+</html>
